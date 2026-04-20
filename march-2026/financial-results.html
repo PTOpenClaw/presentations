@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rev.io | Financial Results | March 2026</title>
+<style>
+  :root {
+    --navy-dark: #162B44;
+    --navy: #1D3756;
+    --teal: #2399B5;
+    --green: #6EBE4F;
+    --red: #E04040;
+    --white: #FFFFFF;
+    --light-blue: #AECCE0;
+    --amber: #FFA500;
+    --grey: #E6E7E8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a0a; font-family: Arial, sans-serif; overflow: hidden; }
+
+  .deck { width: 100vw; height: 100vh; position: relative; }
+  .slide {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: var(--navy-dark);
+    display: none; flex-direction: column;
+    padding: 0;
+  }
+  .slide.active { display: flex; }
+
+  .slide-header {
+    background: var(--navy);
+    padding: 10px 20px 8px;
+    min-height: 58px;
+    flex-shrink: 0;
+  }
+  .slide-header h1 {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 26px; color: var(--white);
+    font-weight: 900; line-height: 1.1;
+  }
+  .slide-header .subtitle {
+    font-size: 11px; color: var(--light-blue);
+    margin-top: 2px;
+  }
+  .divider { height: 3px; background: var(--teal); flex-shrink: 0; }
+
+  .slide-content {
+    flex: 1; padding: 10px 20px 40px;
+    overflow: auto; display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0;
+  }
+
+  .slide-footer {
+    display: flex; justify-content: space-between;
+    padding: 3px 20px; flex-shrink: 0;
+    font-size: 8px; color: var(--light-blue);
+  }
+
+  .nav {
+    position: fixed; bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 10px; align-items: center;
+    background: rgba(22,43,68,0.95);
+    padding: 8px 16px; border-radius: 24px;
+    border: 1px solid var(--teal);
+    z-index: 100;
+  }
+  .nav button {
+    background: var(--teal); color: white;
+    border: none; padding: 5px 14px;
+    border-radius: 12px; cursor: pointer;
+    font-size: 13px; font-weight: bold;
+  }
+  .nav button:hover { background: var(--green); }
+  .nav button:disabled { background: #444; cursor: default; }
+  .nav .counter { color: var(--light-blue); font-size: 12px; min-width: 60px; text-align: center; }
+
+  .kpi-row { display: flex; gap: 12px; margin-bottom: 8px; }
+  .kpi-box {
+    flex: 1; background: var(--navy);
+    padding: 14px 14px 14px 18px;
+    border-left: 6px solid var(--teal);
+    border-radius: 2px;
+  }
+  .kpi-box .kpi-label {
+    font-family: 'Arial Black', Arial; font-size: 11px;
+    color: var(--teal); font-weight: 900;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .kpi-box .kpi-value {
+    font-family: 'Arial Black', Arial;
+    font-size: 36px; color: var(--white);
+    font-weight: 900; line-height: 1;
+  }
+  .kpi-box .kpi-sub { font-size: 12px; margin-top: 4px; }
+  .kpi-box.green { border-color: var(--green); }
+  .kpi-box.green .kpi-label { color: var(--green); }
+  .kpi-box.blue { border-color: var(--light-blue); }
+  .kpi-box.blue .kpi-label { color: var(--light-blue); }
+  .kpi-box.amber { border-color: var(--amber); }
+  .kpi-box.amber .kpi-label { color: var(--amber); }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th {
+    background: var(--navy); color: var(--teal);
+    padding: 7px 10px; text-align: center;
+    font-weight: bold; font-size: 12px;
+  }
+  .data-table th.left { text-align: left; }
+  .data-table td { padding: 6px 10px; color: var(--light-blue); text-align: center; }
+  .data-table td.left { text-align: left; color: var(--white); }
+  .data-table td.bold { font-weight: bold; color: var(--teal); }
+  .data-table tr:nth-child(even) { background: var(--navy); }
+  .data-table tr:nth-child(odd) { background: var(--navy-dark); }
+  .red { color: var(--red) !important; }
+  .green-val { color: var(--green) !important; }
+
+  .section-label {
+    font-family: 'Arial Black', Arial;
+    font-size: 12px; color: var(--teal);
+    font-weight: 900; text-transform: uppercase;
+    margin-bottom: 5px; margin-top: 8px;
+  }
+  .section-label.green { color: var(--green); }
+  .section-divider { height: 2px; background: var(--teal); margin-bottom: 6px; }
+  .section-divider.green { background: var(--green); }
+
+  .two-col { display: flex; gap: 12px; flex: 1; }
+  .col { flex: 1; display: flex; flex-direction: column; }
+
+  .cover-content {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; padding: 30px 40px;
+    position: relative;
+  }
+  .cover-accent { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--teal); }
+  .cover-title { font-family: 'Arial Black', Arial; font-size: 42px; color: var(--teal); font-weight: 900; }
+  .cover-subtitle { font-family: 'Arial Black', Arial; font-size: 34px; color: var(--white); font-weight: 900; margin-top: 4px; }
+  .cover-month { font-size: 22px; color: var(--light-blue); margin-top: 8px; }
+  .cover-line { width: 200px; height: 3px; background: var(--teal); margin: 16px 0; }
+  .cover-sub { font-size: 13px; color: var(--light-blue); font-style: italic; }
+  .cover-confidential { position: absolute; bottom: 20px; right: 20px; font-size: 9px; color: var(--light-blue); }
+
+  .insight-box {
+    background: var(--navy); padding: 8px 12px 8px 16px;
+    border-left: 5px solid var(--teal);
+    margin-top: 8px; font-size: 9px; color: var(--light-blue);
+    font-style: italic;
+  }
+  .insight-box strong { color: var(--teal); font-style: normal; font-size: 8px; display: block; margin-bottom: 3px; }
+
+  .outlook-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; }
+  .outlook-box {
+    background: var(--navy); padding: 10px 12px 10px 16px;
+    border-left: 5px solid var(--teal);
+    display: flex; flex-direction: column;
+  }
+  .outlook-box.green { border-color: var(--green); }
+  .outlook-box.red-border { border-color: var(--red); }
+  .outlook-title {
+    font-family: 'Arial Black', Arial; font-size: 12px;
+    font-weight: 900; color: var(--teal); margin-bottom: 5px;
+  }
+  .outlook-box.green .outlook-title { color: var(--green); }
+  .outlook-box.red-border .outlook-title { color: var(--red); }
+  .outlook-divider { height: 1px; background: var(--teal); margin-bottom: 6px; }
+  .outlook-box.green .outlook-divider { background: var(--green); }
+  .outlook-box.red-border .outlook-divider { background: var(--red); }
+  .outlook-content { font-size: 12px; color: var(--light-blue); line-height: 1.6; }
+
+  .chart-area { flex: 1; display: flex; gap: 10px; }
+  .mini-chart { flex: 1; display: flex; flex-direction: column; }
+  .mini-chart-title { font-family: 'Arial Black', Arial; font-size: 11px; font-weight: 900; margin-bottom: 6px; }
+  .chart-svg { width: 100%; flex: 1; min-height: 100px; }
+  .chart-labels { display: flex; justify-content: space-between; font-size: 9px; color: var(--light-blue); margin-top: 2px; padding: 0 2px; }
+
+  .footnote { font-size: 7.5px; color: var(--light-blue); font-style: italic; margin-top: 4px; }
+
+  .appendix-badge {
+    display: inline-block; background: var(--teal);
+    color: white; font-size: 8px; padding: 1px 6px;
+    border-radius: 8px; margin-left: 8px; vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- SLIDE 1: COVER -->
+<div class="slide active" id="slide-1">
+  <div class="cover-content">
+    <div class="cover-accent"></div>
+    <div class="cover-title">REV.IO</div>
+    <div class="cover-subtitle">Financial Results</div>
+    <div class="cover-month">March 2026</div>
+    <div class="cover-line"></div>
+    <div class="cover-sub">Senior Leadership Review</div>
+    <div class="cover-confidential">CONFIDENTIAL</div>
+  </div>
+  <div class="slide-footer">
+    <span>Rev.io | Financial Results | March 2026 | Prepared by Finance | Close date: April 2026</span>
+    <span>CONFIDENTIAL</span>
+  </div>
+</div>
+
+<!-- SLIDE 2: EXECUTIVE SUMMARY -->
+<div class="slide" id="slide-2">
+  <div class="slide-header">
+    <h1>Executive Summary</h1>
+    <div class="subtitle">March 2026 | Financial Highlights</div>
+  </div>
+  <div class="divider"></div>
+  <div class="slide-content">
+    <div class="kpi-row" style="margin-bottom:8px; flex:1.2">
+      <div class="kpi-box" style="padding:16px 16px 16px 20px; justify-content:center; display:flex; flex-direction:column;">
+        <div class="kpi-label" style="font-size:13px">Revenue</div>
+        <div class="kpi-value" style="font-size:48px; margin:6px 0">$3.3M</div>
+        <div class="kpi-sub red" style="font-size:13px">Mar vs Budget: -$31K</div>
+        <div class="kpi-sub red" style="font-size:13px">YTD vs Budget: -$120K ($9.7M YTD)</div>
+      </div>
+      <div class="kpi-box green" style="padding:16px 16px 16px 20px; justify-content:center; display:flex; flex-direction:column;">
+        <div class="kpi-label" style="color:var(--green); font-size:13px">EBITDA</div>
+        <div class="kpi-value" style="font-size:48px; margin:6px 0">20.7%</div>
+        <div class="kpi-sub green-val" style="font-size:13px">Mar vs Budget: +$76K | +2.5 pts</div>
+        <div class="kpi-sub green-val" style="font-size:13px">YTD vs Budget: +$459K | +4.9 pts (22.3% YTD)</div>
+      </div>
+      <div class="kpi-box blue" style="padding:16px 16px 16px 20px; justify-content:center; display:flex; flex-direction:column;">
+        <div class="kpi-label" style="color:var(--light-blue); font-size:13px">Cash</div>
+        <div class="kpi-value" style="font-size:48px; margin:6px 0">$3.7M</div>
+        <div class="kpi-sub" style="color:var(--light-blue); font-size:13px">Ending Balance — March 2026</div>
+        <div class="kpi-sub" style="color:var(--light-blue); font-size:13px">Expected ~$2.9M mid-April; recovering to ~$3.3M end of May</div>
+      </div>
+    </div>
+    <div style="margin-top:0; flex:1; display:flex; flex-direction:column;">
+      <div style="font-family:'Arial Black',Arial; font-size:14px; color:var(--teal); font-weight:900; text-transform:uppercase; margin-bottom:5px;">Highlights</div>
+      <div style="height:2px; background:var(--teal); margin-bottom:8px;"></div>
+      <div style="font-size:15px; color:var(--light-blue); line-height:2.1; flex:1;">
+        ▸ Total Net Revenue $3.3M, $31K below budget — PSA shortfall ($93K) partially offset by Odin outperformance (+$27K), Payments strength (+$32K), and CyberProtect upside (+$14K)<br>
+        ▸ EBITDA $679K (20.7%) — $76K ahead of budget; incentive accrual resumed in March ($179K combined COGS + OpEx)<br>
+        ▸ Spend $107K favorable: people costs $232K below budget, offset by Hosting/IT $34K over and AI $60K over<br>
+        ▸ Total ARR $38.9M — Billing growing (+$5K MoM), PSA Legacy declining (-$12K MoM), Payments surge (+$43K MoM)<br>
+        ▸ YTD EBITDA 22.3% — $459K ahead of budget; people savings and incentive accrual timing primary drivers<br>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>Rev.io | Financial Results | March 2026</span>
+    <span>CONFIDENTIAL</span>
+  </div>
+</div>
+
+<!-- SLIDE 3: P&L SUMMARY -->
+<div class="slide" id="slide-3">
+  <div class="slide-header">
+    <h1>P&amp;L Summary</h1>
+    <div class="subtitle">March 2026 | Actuals vs. Budget vs. YTD</div>
+  </div>
+  <div class="divider"></div>
+  <div class="slide-content" style="justify-content:stretch;">
+    <table class="data-table" style="height:100%; font-size:15px;">
+      <thead>
+        <tr>
+          <th class="left"></th>
+          <th>Mar Actual</th><th>Mar Budget</th><th>Var $</th><th>Var %</th>
+          <th>YTD Actual</th><th>YTD Budget</th><th>Var $</th><th>Var %</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="height:13%"><td class="left bold">Revenue</td><td>$3,281.5K</td><td>$3,312.2K</td><td class="red">-$30.7K</td><td class="red">-0.9%</td><td>$9,659.9K</td><td>$9,780.1K</td><td class="red">-$120.3K</td><td class="red">-1.2%</td></tr>
+        <tr style="height:13%"><td class="left">Cost of Revenue</td><td>$896.6K</td><td>$936.3K</td><td class="green-val">-$39.7K</td><td class="green-val">-4.2%</td><td>$2,677.8K</td><td>$2,795.3K</td><td class="green-val">-$117.5K</td><td class="green-val">-4.2%</td></tr>
+        <tr style="height:13%"><td class="left bold">Gross Profit</td><td>$2,384.8K</td><td>$2,375.9K</td><td class="green-val">+$8.9K</td><td class="green-val">+0.4%</td><td>$6,982.1K</td><td>$6,984.8K</td><td class="red">-$2.7K</td><td class="red">-0.0%</td></tr>
+        <tr style="height:13%"><td class="left" style="color:var(--light-blue)">Gross Margin %</td><td>72.7%</td><td>71.7%</td><td class="green-val">+1.0 pts</td><td>—</td><td>72.3%</td><td>71.4%</td><td class="green-val">+0.9 pts</td><td>—</td></tr>
+        <tr style="height:13%"><td class="left bold">Operating Expenses</td><td>$1,706.2K</td><td>$1,773.0K</td><td class="green-val">-$66.8K</td><td class="green-val">-3.8%</td><td>$4,823.2K</td><td>$5,285.2K</td><td class="green-val">-$462.0K</td><td class="green-val">-8.7%</td></tr>
+        <tr style="height:13%"><td class="left bold" style="color:var(--green)">EBITDA</td><td>$678.6K</td><td>$602.9K</td><td class="green-val">+$75.7K</td><td class="green-val">+12.6%</td><td>$2,158.8K</td><td>$1,699.6K</td><td class="green-val">+$459.2K</td><td class="green-val">+27.0%</td></tr>
+        <tr style="height:13%"><td class="left" style="color:var(--light-blue)">EBITDA Margin %</td><td>20.7%</td><td>18.2%</td><td class="green-val">+2.5 pts</td><td>—</td><td>22.3%</td><td>17.4%</td><td class="green-val">+4.9 pts</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="slide-footer">
+    <span>Rev.io | Financial Results | March 2026</span>
+    <span>CONFIDENTIAL</span>
+  </div>
+</div>
+
+<!-- SLIDE 4: BOOKINGS & REVENUE -->
+<div class="slide" id="slide-4">
+  <div class="slide-header">
+    <h1>Bookings &amp; Revenue Performance</h1>
+    <div class="subtitle">March 2026 | Actuals by Product (Monthly &amp; YTD)</div>
+  </div>
+  <div class="divider"></div>
+  <div class="slide-content" style="justify-content:stretch;">
+    <div class="section-label">Bookings (MRR, $K) — March vs. Budget</div>
+    <table class="data-table" style="margin-bottom:8px; font-size:13px; flex:1;">
+      <thead><tr><th class="left">Product</th><th>Mar Actual</th><th>Mar Budget</th><th>Var $</th><th>Var %</th><th>YTD Actual</th><th>YTD Budget</th><th>Var $</th><th>Var %</th></tr></thead>
+      <tbody>
+        <tr style="height:14%"><td class="left">Billing</td><td>$12.3K</td><td>$14.3K</td><td class="red">-$2.0K</td><td class="red">-13.8%</td><td>$27.4K</td><td>$20.6K</td><td class="green-val">+$6.8K</td><td class="green-val">+33.0%</td></tr>
+        <tr style="height:14%"><td class="left">PSA Web</td><td>$15.9K</td><td>$25.0K</td><td class="red">-$9.1K</td><td class="red">-36.5%</td><td>$31.6K</td><td>$63.0K</td><td class="red">-$31.4K</td><td class="red">-49.8%</td></tr>
+        <tr style="height:14%"><td class="left">Payments AR</td><td>$3.5K</td><td>$2.7K</td><td class="green-val">+$0.9K</td><td class="green-val">+33.0%</td><td>$6.5K</td><td>$8.7K</td><td class="red">-$2.2K</td><td class="red">-25.5%</td></tr>
+        <tr style="height:14%"><td class="left">Payments AP</td><td>$0</td><td>$7.0K</td><td class="red">-$7.0K</td><td class="red">-100%</td><td>$0</td><td>$19.0K</td><td class="red">-$19.0K</td><td class="red">-100%</td></tr>
+        <tr style="height:14%"><td class="left">Cyber Protect</td><td>$0.4K</td><td>$3.8K</td><td class="red">-$3.4K</td><td class="red">-90.7%</td><td>$0.6K</td><td>$3.8K</td><td class="red">-$3.2K</td><td class="red">-84.2%</td></tr>
+        <tr style="height:14%"><td class="left">CommerceHub</td><td>$0</td><td>$1.0K</td><td class="red">-$1.0K</td><td class="red">-100%</td><td>$0</td><td>$1.0K</td><td class="red">-$1.0K</td><td class="red">-100%</td></tr>
+        <tr style="height:14%"><td class="left bold">Total Bookings</td><td>$32.0K</td><td>$53.7K</td><td class="red">-$21.7K</td><td class="red">-40.4%</td><td>$66.1K</td><td>$116.1K</td><td class="red">-$50.0K</td><td class="red">-43.1%</td></tr>
+      </tbody>
+    </table>
+    <div class="section-label" style="margin-top:6px">Revenue by Product ($K) — March vs. Budget</div>
+    <table class="data-table" style="font-size:13px; flex:1;">
+      <thead><tr><th class="left">Product</th><th>Mar Actual</th><th>Mar Budget</th><th>Var $</th><th>Var %</th><th>YTD Actual</th><th>YTD Budget</th><th>Var $</th><th>Var %</th></tr></thead>
+      <tbody>
+        <tr style="height:13%"><td class="left">Billing (incl. Odin)</td><td>$2,314.5K</td><td>$2,296.8K</td><td class="green-val">+$17.7K</td><td class="green-val">+0.8%</td><td>$6,867.8K</td><td>$6,856.7K</td><td class="green-val">+$11.1K</td><td class="green-val">+0.2%</td></tr>
+        <tr style="height:13%"><td class="left">PSA (Legacy + Web)</td><td>$710.1K</td><td>$803.5K</td><td class="red">-$93.4K</td><td class="red">-11.6%</td><td>$2,148.4K</td><td>$2,339.1K</td><td class="red">-$190.7K</td><td class="red">-8.2%</td></tr>
+        <tr style="height:13%"><td class="left">Cyber Protect</td><td>$17.6K</td><td>$3.6K</td><td class="green-val">+$14.0K</td><td>N/A</td><td>$35.1K</td><td>$4.2K</td><td class="green-val">+$30.9K</td><td>N/A</td></tr>
+        <tr style="height:13%"><td class="left">Non-Recurring</td><td>$26.5K</td><td>$26.9K</td><td class="red">-$0.4K</td><td class="red">-1.6%</td><td>$67.3K</td><td>$80.6K</td><td class="red">-$13.4K</td><td class="red">-16.6%</td></tr>
+        <tr style="height:13%"><td class="left">Payments (Net Rev Share)</td><td>$212.9K</td><td>$180.5K</td><td class="green-val">+$32.4K</td><td class="green-val">+18.0%</td><td>$541.4K</td><td>$498.6K</td><td class="green-val">+$42.8K</td><td class="green-val">+8.6%</td></tr>
+        <tr style="height:13%"><td class="left bold">Total Revenue</td><td>$3,281.5K</td><td>$3,312.2K</td><td class="red">-$30.7K</td><td class="red">-0.9%</td><td>$9,659.9K</td><td>$9,780.1K</td><td class="red">-$120.3K</td><td class="red">-1.2%</td></tr>
+      </tbody>
+    </table>
+
+  </div>
+  <div class="slide-footer">
+    <span>Rev.io | Financial Results | March 2026</span>
+    <span>CONFIDENTIAL</span>
+  </div>
+</div>
+
+<!-- SLIDE 5: RECURRING REVENUE -->
+<div class="slide" id="slide-5">
+  <div class="slide-header">
+    <h1>Recurring Revenue</h1>
+    <div class="subtitle">ARR by Product — Trailing 12 Months | Apr 2025 – Mar 2026</div>
+  </div>
+  <div class="divider"></div>
+  <div class="slide-content">
+    <div class="kpi-row" style="margin-bottom:8px">
+      <div class="kpi-box"><div class="kpi-label">Total ARR</div><div class="kpi-value" style="font-size:22px">$38.9M</div><div class="kpi-sub" style="color:var(--light-blue)">incl. Payments</div></div>
+      <div class="kpi-box green"><div class="kpi-label" style="color:var(--green)">Billing ARR</div><div class="kpi-value" style="font-size:22px">$27.8M</div><div class="kpi-sub" style="color:var(--light-blue)">+$0.4M vs Feb</div></div>
+      <div class="kpi-box blue"><div class="kpi-label" style="color:var(--light-blue)">PSA ARR</div><div class="kpi-value" style="font-size:22px">$8.5M</div><div class="kpi-sub" style="color:var(--light-blue)">-$0.1M vs Feb</div></div>
+    </div>
+    <div class="chart-area">
+      <div class="mini-chart">
+        <div class="mini-chart-title" style="color:var(--teal)">BILLING (incl. Odin) — $M</div>
+        <svg class="chart-svg" id="billing-svg" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
+        <div class="chart-labels"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span></div>
+      </div>
+      <div class="mini-chart">
+        <div class="mini-chart-title" style="color:var(--green)">PSA — $M</div>
+        <svg class="chart-svg" id="psa-svg" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
+        <div class="chart-labels"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span></div>
+      </div>
+      <div class="mini-chart">
+        <div class="mini-chart-title" style="color:var(--amber)">PAYMENTS (Net) — $M ARR</div>
+        <svg class="chart-svg" id="payments-svg" viewBox="0 0 300 120" preserveAspectRatio="none"></svg>
+        <div class="chart-labels"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span></div>
+      </div>
+    </div>
+    <div class="insight-box" style="margin-top:8px; font-size:12px;">
+      <strong>KEY INSIGHT</strong>
+      Billing MRR +$32K MoM to $2.31M driven by Odin reserve reversal (+$26K) and usage growth (+$5K). PSA Legacy -$12K MoM (ongoing churn/credits); PSA Web +$5K MoM (modest ramp). Payments MRR +$43K MoM — strong month including $19K Paya past-due residuals and $18K TRX ACH catch-up.
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>Rev.io | Financial Results | March 2026</span>
+    <span>CONFIDENTIAL</span>
+  </div>
+</div>
+
+<!-- SLIDE 6: EXPENSE SUMMARY -->
+<div class="slide" id="slide-6">
+  <div class="slide-header">
+    <h1>Expense Summary</h1>
+    <div class="subtitle">March 2026 | Actuals vs. Budget by Cost Center</div>
+  </div>
+  <div class="divider"></div>
+  <div class="slide-content" style="justify-content:stretch;">
+    <table class="data-table" style="height:100%; font-size:12px;">
+      <thead><tr><th class="left">Cost Center</th><th>Mar Actual</th><th>Mar Budget</th><th>Var $</th><th>Var %</th><th>YTD Actual</th><th>YTD Budget</th><th>Var $</th><th>Var %</th></tr></thead>
+      <tbody>
+        <tr style="height:7%"><td class="left">Infrastructure &amp; IT</td><td>$457.7K</td><td>$424.2K</td><td class="red">+$33.5K</td><td class="red">+7.9%</td><td>$1,390.9K</td><td>$1,268.2K</td><td class="red">+$122.7K</td><td class="red">+9.7%</td></tr>
+        <tr style="height:7%"><td class="left">Client Success</td><td>$172.2K</td><td>$186.3K</td><td class="green-val">-$14.1K</td><td class="green-val">-7.6%</td><td>$492.3K</td><td>$559.0K</td><td class="green-val">-$66.7K</td><td class="green-val">-11.9%</td></tr>
+        <tr style="height:7%"><td class="left">Onboarding</td><td>$263.8K</td><td>$286.5K</td><td class="green-val">-$22.7K</td><td class="green-val">-7.9%</td><td>$748.9K</td><td>$849.9K</td><td class="green-val">-$101.0K</td><td class="green-val">-11.9%</td></tr>
+        <tr style="height:7%"><td class="left">Direct Sales</td><td>$265.3K</td><td>$297.0K</td><td class="green-val">-$31.7K</td><td class="green-val">-10.7%</td><td>$802.8K</td><td>$848.8K</td><td class="green-val">-$46.0K</td><td class="green-val">-5.4%</td></tr>
+        <tr style="height:7%"><td class="left">Channel</td><td>$75.5K</td><td>$58.0K</td><td class="red">+$17.5K</td><td class="red">+30.2%</td><td>$159.6K</td><td>$162.4K</td><td class="green-val">-$2.8K</td><td class="green-val">-1.7%</td></tr>
+        <tr style="height:7%"><td class="left">Marketing</td><td>$173.8K</td><td>$198.9K</td><td class="green-val">-$25.1K</td><td class="green-val">-12.6%</td><td>$459.8K</td><td>$584.3K</td><td class="green-val">-$124.5K</td><td class="green-val">-21.3%</td></tr>
+        <tr style="height:7%"><td class="left">Product Management</td><td>$194.5K</td><td>$208.3K</td><td class="green-val">-$13.8K</td><td class="green-val">-6.6%</td><td>$567.7K</td><td>$632.3K</td><td class="green-val">-$64.6K</td><td class="green-val">-10.2%</td></tr>
+        <tr style="height:7%"><td class="left">AI</td><td>$84.8K</td><td>$24.9K</td><td class="red">+$59.9K</td><td class="red">+240%</td><td>$244.5K</td><td>$68.0K</td><td class="red">+$176.5K</td><td class="red">+259%</td></tr>
+        <tr style="height:7%"><td class="left">Engineering</td><td>$527.0K</td><td>$535.5K</td><td class="green-val">-$8.5K</td><td class="green-val">-1.6%</td><td>$1,617.7K</td><td>$1,613.2K</td><td class="red">+$4.5K</td><td class="red">+0.3%</td></tr>
+        <tr style="height:7%"><td class="left">HR</td><td>$31.3K</td><td>$44.0K</td><td class="green-val">-$12.7K</td><td class="green-val">-28.9%</td><td>$108.5K</td><td>$166.2K</td><td class="green-val">-$57.7K</td><td class="green-val">-34.7%</td></tr>
+        <tr style="height:7%"><td class="left">Finance &amp; G&amp;A</td><td>$356.9K</td><td>$325.9K</td><td class="red">+$31.0K</td><td class="red">+9.5%</td><td>$908.3K</td><td>$975.1K</td><td class="green-val">-$66.8K</td><td class="green-val">-6.9%</td></tr>
+        <tr style="height:7%"><td class="left bold">Total COGS + OpEx</td><td>$2,602.8K</td><td>$2,709.3K</td><td class="green-val">-$106.5K</td><td class="green-val">-3.9%</td><td>$7,501.0K</td><td>$8,080.5K</td><td class="green-val">-$579.5K</td><td class="green-val">-7.2%</td></tr>
+      </tbody>
+    </table>
+    <div class="footnote">⚠ Infra &amp; IT +$123K YTD — Vervint running ~$67K/month over budget. AI +$177K YTD — material overrun vs. budget; root cause review in progress. Finance March over due to $24K 2024 Bullhorn CAM charges + incentive accrual timing.</div>
+  </div>
+  <div class="slide-footer">
+    <span>Rev.io | Financial Results | March 2026</span>
+    <span>CONFIDENTIAL</span>
+  </div>
+</div>
+
+<!-- SLIDE 7: KPIs (APPENDIX) -->
+<div class="slide" id="slide-7">
+  <div class="slide-header">
+    <h1>KPIs / Scorecard <span class="appendix-badge">APPENDIX</span></h1>
+    <div class="subtitle">March 2026</div>
+  </div>
+  <div class="divider"></div>
+  <div class="slide-content">
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; grid-template-rows:1fr 1fr; gap:12px; flex:1;">
+      <div class="kpi-box" style="padding:20px 18px 20px 22px; display:flex; flex-direction:column; justify-content:center;">
+        <div class="kpi-label" style="font-size:13px">Gross Revenue Retention</div>
+        <div class="kpi-value" style="font-size:52px; margin:8px 0;">87.9%</div>
+        <div style="height:1px;background:var(--teal);margin:6px 0;"></div>
+        <div class="kpi-sub" style="color:var(--light-blue); font-size:13px">TTM &nbsp;|&nbsp; <em>Goal: 90%</em></div>
+      </div>
+      <div class="kpi-box" style="padding:20px 18px 20px 22px; display:flex; flex-direction:column; justify-content:center; border-color:var(--amber);">
+        <div class="kpi-label" style="color:var(--amber); font-size:13px">Net Revenue Retention</div>
+        <div class="kpi-value" style="font-size:52px; margin:8px 0;">98.3%</div>
+        <div style="height:1px;background:var(--amber);margin:6px 0;"></div>
+        <div class="kpi-sub" style="color:var(--light-blue); font-size:13px">TTM &nbsp;|&nbsp; <em>Goal: 105%</em></div>
+      </div>
+      <div class="kpi-box green" style="padding:20px 18px 20px 22px; display:flex; flex-direction:column; justify-content:center;">
+        <div class="kpi-label" style="color:var(--green); font-size:13px">EBITDA Margin</div>
+        <div class="kpi-value" style="font-size:52px; margin:8px 0;">22.3%</div>
+        <div style="height:1px;background:var(--green);margin:6px 0;"></div>
+        <div class="kpi-sub" style="color:var(--light-blue); font-size:13px">YTD (Mar: 20.7%) &nbsp;|&nbsp; <em>Goal: 30%</em></div>
+      </div>
+      <div class="kpi-box" style="padding:20px 18px 20px 22px; display:flex; flex-direction:column; justify-content:center;">
+        <div class="kpi-label" style="font-size:13px">Rule of 40</div>
+        <div class="kpi-value" style="font-size:52px; margin:8px 0;">23.7%</div>
+        <div style="height:1px;background:var(--teal);margin:6px 0;"></div>
+        <div class="kpi-sub" style="color:var(--light-blue); font-size:13px">TTM est. &nbsp;|&nbsp; <em>Goal: 50%</em></div>
+      </div>
+      <div class="kpi-box green" style="padding:20px 18px 20px 22px; display:flex; flex-direction:column; justify-content:center;">
+        <div class="kpi-label" style="color:var(--green); font-size:13px">CAC Ratio</div>
+        <div class="kpi-value" style="font-size:52px; margin:8px 0;">0.31x</div>
+        <div style="height:1px;background:var(--green);margin:6px 0;"></div>
+        <div class="kpi-sub" style="color:var(--light-blue); font-size:13px">TTM Total &nbsp;|&nbsp; <em>Goal: 1.0x</em></div>
+      </div>
+      <div class="kpi-box blue" style="padding:20px 18px 20px 22px; display:flex; flex-direction:column; justify-content:center;">
+        <div class="kpi-label" style="color:var(--light-blue); font-size:13px">LTV / CAC</div>
+        <div class="kpi-value" style="font-size:52px; margin:8px 0;">2.53x</div>
+        <div style="height:1px;background:var(--light-blue);margin:6px 0;"></div>
+        <div class="kpi-sub" style="color:var(--light-blue); font-size:13px">TTM Total &nbsp;|&nbsp; <em>Goal: 3.0x</em></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="slide-footer">
+    <span>Rev.io | Financial Results | March 2026</span>
+    <span>CONFIDENTIAL</span>
+  </div>
+</div>
+
+<!-- SLIDE 8: RETENTION ANALYSIS -->
+<div class="slide" id="slide-8">
+  <div class="slide-header">
+    <h1>Retention Analysis</h1>
+    <div class="subtitle">March 2026 | GRR &amp; NRR by Product (TTM)</div>
+  </div>
+  <div class="divider"></div>
+  <div class="slide-content" style="justify-content:stretch;">
+    <div class="kpi-row" style="margin-bottom:8px">
+      <div class="kpi-box" style="padding:10px 14px 10px 18px"><div class="kpi-label" style="font-size:13px">Total GRR (ARR)</div><div class="kpi-value" style="font-size:38px">87.9%</div><div class="kpi-sub red" style="font-size:12px">vs. 90% Goal</div></div>
+      <div class="kpi-box" style="padding:10px 14px 10px 18px; border-color:var(--amber)"><div class="kpi-label" style="color:var(--amber); font-size:13px">Total NRR (ARR)</div><div class="kpi-value" style="font-size:38px">98.3%</div><div class="kpi-sub red" style="font-size:12px">vs. 105% Goal</div></div>
+      <div class="kpi-box blue" style="padding:10px 14px 10px 18px"><div class="kpi-label" style="color:var(--light-blue); font-size:13px">Logo Retention</div><div class="kpi-value" style="font-size:38px">97.5%</div><div class="kpi-sub" style="color:var(--light-blue); font-size:12px">1,328 customers at period end</div></div>
+    </div>
+    <div class="two-col" style="flex:1;">
+      <div class="col">
+        <div class="section-label">NRR by Product (TTM)</div>
+        <div class="section-divider"></div>
+        <table class="data-table" style="font-size:15px; flex:1;">
+          <thead><tr><th class="left">Product</th><th>ARR</th><th>GRR</th><th>NRR</th></tr></thead>
+          <tbody>
+            <tr style="height:22%"><td class="left">Billing (incl. Odin)</td><td>$27.8M</td><td class="green-val">92.4%</td><td class="green-val">103.0%</td></tr>
+            <tr style="height:22%"><td class="left">PSA (Legacy + Web)</td><td>$8.5M</td><td class="red">79.1%</td><td class="red">85.4%</td></tr>
+            <tr style="height:22%"><td class="left">Payments</td><td>$2.6M</td><td class="red">71.1%</td><td class="red">97.1%</td></tr>
+            <tr style="height:22%"><td class="left bold">Total</td><td>$38.9M</td><td>87.9%</td><td>98.3%</td></tr>
+          </tbody>
+        </table>
+        <div class="footnote">GRR/NRR = TTM trailing 12 months (source: 9. Rtntn Rllfwd + Investor Summary KPIs). Logo counts = MoM Feb→Mar 2026 (source: Rtntn Rllfwd monthly section). Total GRR 87.9% = 2.1 pts below 90% goal.</div>
+      </div>
+      <div class="col">
+        <div class="section-label green">Logo (Customer) Retention — TTM (Apr 2025–Mar 2026)</div>
+        <div class="section-divider green"></div>
+        <table class="data-table" style="font-size:15px; flex:1;">
+          <thead><tr><th class="left">Product</th><th>BOP</th><th>New</th><th>Churn</th><th>EOP</th><th>Retention</th></tr></thead>
+          <tbody>
+            <tr style="height:16%"><td class="left">Billing</td><td>282</td><td class="green-val">+52</td><td class="red">-26</td><td>308</td><td class="green-val">90.8%</td></tr>
+            <tr style="height:16%"><td class="left">PSA</td><td>714</td><td class="green-val">+76</td><td class="red">-109</td><td>681</td><td class="red">84.7%</td></tr>
+            <tr style="height:16%"><td class="left">Odin</td><td>40</td><td class="green-val">+1</td><td class="red">-6</td><td>35</td><td class="red">85.0%</td></tr>
+            <tr style="height:16%"><td class="left">Payments</td><td>209</td><td class="green-val">+89</td><td class="red">-29</td><td>269</td><td class="red">86.1%</td></tr>
+            <tr style="height:16%"><td class="left bold">Total Company</td><td>1,205</td><td class="green-val">+217</td><td class="red">-164</td><td>1,258</td><td class="red">86.4%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="insight-box" style="margin-top:6px; font-size:12px;">
+      <strong>KEY INSIGHT</strong>
+      Downsell ($3.3M TTM) exceeds New Sales ($1.6M TTM) — ARR growth dependent on expanding Billing upsell ($3.9M) offsetting PSA Legacy churn. PSA Web ramping but not yet sufficient to replace legacy losses.
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>Rev.io | Financial Results | March 2026</span>
+    <span>CONFIDENTIAL</span>
+  </div>
+</div>
+
+<!-- SLIDE 9: PAYMENTS TRACKER -->
+<div class="slide" id="slide-9">
+  <div class="slide-header">
+    <h1>Payments Revenue Tracker</h1>
+    <div class="subtitle">October 2025 – March 2026 | Paya/Nuvei &amp; TRX</div>
+  </div>
+  <div class="divider"></div>
+  <div class="slide-content">
+    <div class="section-label" style="margin-top:0">Paya / Nuvei</div>
+    <div class="section-divider" style="margin-bottom:4px"></div>
+    <table class="data-table" style="margin-bottom:10px">
+      <thead><tr><th class="left">Metric</th><th>Oct '25</th><th>Nov '25</th><th>Dec '25</th><th>Jan '26</th><th>Feb '26</th><th>Mar '26</th></tr></thead>
+      <tbody>
+        <tr><td class="left">CC Volume</td><td>$26.9M</td><td>$23.7M</td><td>$28.1M</td><td>$22.9M</td><td>$24.0M</td><td>$29.1M</td></tr>
+        <tr><td class="left">CC Rev Share $</td><td>$150.7K</td><td>$100.4K</td><td>$124.4K</td><td>$117.7K</td><td>$106.7K</td><td>$144.1K</td></tr>
+        <tr><td class="left">CC Rate</td><td>0.56%</td><td>0.42%</td><td>0.44%</td><td>0.52%</td><td>0.45%</td><td>0.49%</td></tr>
+        <tr><td class="left">ACH Volume</td><td>$20.7M</td><td>$18.2M</td><td>$22.0M</td><td>$20.8M</td><td>$18.5M</td><td>$22.6M</td></tr>
+        <tr><td class="left">ACH Rev Share $</td><td>$13.4K</td><td>$14.3K</td><td>$15.6K</td><td>$15.3K</td><td>$14.7K</td><td>$16.1K</td></tr>
+        <tr><td class="left">ACH Rate</td><td>0.06%</td><td>0.08%</td><td>0.07%</td><td>0.07%</td><td>0.08%</td><td>0.07%</td></tr>
+      </tbody>
+    </table>
+    <div class="section-label green" style="margin-top:0">TRX</div>
+    <div class="section-divider green" style="margin-bottom:4px"></div>
+    <table class="data-table">
+      <thead><tr><th class="left">Metric</th><th>Oct '25</th><th>Nov '25</th><th>Dec '25</th><th>Jan '26</th><th>Feb '26</th><th>Mar '26</th></tr></thead>
+      <tbody>
+        <tr><td class="left">CC Volume</td><td>$841.5K</td><td>$4.4M</td><td>$6.0M</td><td>$7.2M</td><td>$6.9M</td><td>$6.9M</td></tr>
+        <tr><td class="left">CC Rev Share $</td><td>$7.2K</td><td>$13.5K</td><td>$19.5K</td><td>$26.6K</td><td>$21.1K</td><td>$21.9K</td></tr>
+        <tr><td class="left">CC Rate</td><td>0.86%</td><td>0.31%</td><td>0.32%</td><td>0.37%</td><td>0.29%</td><td>0.32%</td></tr>
+        <tr><td class="left">ACH Volume</td><td>$2.3M</td><td>$1.6M</td><td>$2.5M</td><td>$4.0M</td><td>$4.6M</td><td>$9.8M</td></tr>
+        <tr><td class="left">ACH Rev Share $</td><td>$8.6K</td><td>$6.5K</td><td>$8.2K</td><td>$15.1K</td><td>$15.7K</td><td>$32.7K</td></tr>
+        <tr><td class="left">ACH Rate</td><td>0.37%</td><td>0.42%</td><td>0.33%</td><td>0.38%</td><td>0.34%</td><td>0.33%</td></tr>
+      </tbody>
+    </table>
+    <div class="footnote">Source: Investor Summary KPIs tab, Monthly Financial Package Mar-26. TRX ACH $9.8M volume reflects ACH migration ramp — 2nd month of elevated residuals. Total Mar net rev share = $214.8K ($144.1K + $16.1K + $21.9K + $32.7K).</div>
+  </div>
+  <div class="slide-footer">
+    <span>Rev.io | Financial Results | March 2026</span>
+    <span>CONFIDENTIAL</span>
+  </div>
+</div>
+
+<!-- SLIDE 10: OUTLOOK -->
+<div class="slide" id="slide-10">
+  <div class="slide-header">
+    <h1>Outlook &amp; Commentary</h1>
+    <div class="subtitle">Forward-Looking Notes | April 2026 &amp; Beyond</div>
+  </div>
+  <div class="divider"></div>
+  <div class="slide-content">
+    <div class="outlook-grid">
+      <div class="outlook-box">
+        <div class="outlook-title">REVENUE OUTLOOK — APRIL</div>
+        <div class="outlook-divider"></div>
+        <div class="outlook-content">
+          ▸ Billing: Net -$6K (March Odin adjustments roll off); Billing-only +$11K.<br><br>
+          ▸ PSA Legacy: -$12K (continued churn/credits); PSA Web: +$13K (ramping).<br><br>
+          ▸ Payments: normalized after ACH catch-up residuals — expect ~$170–180K/month.<br><br>
+          ▸ Total MRR expected ~$3.0M range in April.
+        </div>
+      </div>
+      <div class="outlook-box green">
+        <div class="outlook-title">EBITDA &amp; CASH</div>
+        <div class="outlook-divider"></div>
+        <div class="outlook-content">
+          ▸ EBITDA: $679K (20.7%) in March, +$76K vs. budget; YTD $2.16M (22.3%), +$459K vs. budget.<br><br>
+          ▸ MoM down from 24.5% — incentive accrual resumed ($178K) after zero Jan/Feb.<br><br>
+          ▸ Watch: if revenue shortfalls widen and people savings narrow as hiring ramps, the cushion compresses quickly.<br><br>
+          ▸ Cash: $3.73M at March 31 (-$427K MoM). April: ~$2.9M after Q1 interest; recovery to ~$3.3M by end of May.
+        </div>
+      </div>
+      <div class="outlook-box red-border">
+        <div class="outlook-title">COST WATCH ITEMS</div>
+        <div class="outlook-divider"></div>
+        <div class="outlook-content">
+          ▸ <strong style="color:var(--red)">Hosting (Vervint):</strong> $401K actual, +$67K over budget; run rate ~$74K/month over. Needs budget revision or optimization plan.<br><br>
+          ▸ <strong style="color:var(--red)">R&amp;D Contractors:</strong> Softserve $42K in March vs. ~$10K expected. Open action item with Ray.<br><br>
+          ▸ <strong style="color:var(--red)">Technology Spend:</strong> +$31K over budget; root cause: AI +$13K, UKG accrual miss $13K, HubSpot $2.5K. Confirm recurring vs. one-time.<br><br>
+          ▸ HC 18 under budget — FTE savings (+$808K YTD) absorbing overruns. Monitor as hiring ramps.
+        </div>
+      </div>
+      <div class="outlook-box">
+        <div class="outlook-title">RETENTION HIGHLIGHTS</div>
+        <div class="outlook-divider"></div>
+        <div class="outlook-content">
+          ▸ Billing net retention 101.4% MoM — expansion ($77K upsell) exceeded contraction. Strongest month in trailing 5.<br><br>
+          ▸ PSA Web MRR +18.5% MoM ($26.7K → $31.7K); net retention 115.3% — ramping but needs to accelerate.<br><br>
+          ▸ Payments MRR +36% MoM ($158K → $215K) — TRX ACH migration ramp + Paya past-due residuals. Normalizing April.<br><br>
+          ▸ ARR growth decelerated to 2.7% TTM (from 6.2% prior year) — new deal sizes declining in Billing and PSA.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>Rev.io | Financial Results | March 2026 | Prepared by Finance | Close date: April 2026</span>
+    <span>CONFIDENTIAL</span>
+  </div>
+</div>
+
+</div><!-- end deck -->
+
+<!-- Navigation -->
+<div class="nav">
+  <button id="btn-prev" onclick="navigate(-1)" disabled>←</button>
+  <span class="counter" id="counter">1 / 10</span>
+  <button id="btn-next" onclick="navigate(1)">→</button>
+</div>
+
+<script>
+  const TOTAL = 10;
+  let current = 1;
+
+  // ARR chart data — Trailing 12 months Apr 2025 – Mar 2026
+  // Billing: MRR × 12 (from 3-Statement actuals)
+  // PSA: MRR × 12
+  // Payments: Net contribution × 12
+  const chartData = {
+    billing:  [26.4, 26.5, 26.5, 26.2, 26.5, 26.9, 26.6, 27.2, 27.1, 27.2, 27.4, 27.8],
+    psa:      [9.1,  9.0,  9.1,  9.1,  9.1,  9.2,  9.0,  8.9,  8.8,  8.6,  8.6,  8.5],
+    payments: [2.1,  2.0,  2.1,  2.2,  2.0,  2.1,  2.0,  1.6,  2.0,  1.9,  2.0,  2.6],
+  };
+  const chartColors = { billing: '#2399B5', psa: '#6EBE4F', payments: '#FFA500' };
+
+  function buildLineChart(svgId, data, color) {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    const W = 300, H = 120, pad = 8;
+    const min = Math.min(...data) * 0.95;
+    const max = Math.max(...data) * 1.05;
+    const xStep = (W - pad*2) / (data.length - 1);
+    const points = data.map((v, i) => {
+      const x = pad + i * xStep;
+      const y = H - pad - ((v - min) / (max - min)) * (H - pad*2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    const firstX = pad, lastX = pad + (data.length-1)*xStep;
+    svg.innerHTML = `
+      <defs><linearGradient id="g${svgId}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+      </linearGradient></defs>
+      <polygon points="${firstX.toFixed(1)},${H-pad} ${points} ${lastX.toFixed(1)},${H-pad}" fill="url(#g${svgId})"/>
+      <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${data.map((v,i) => {
+        const x = pad + i * xStep;
+        const y = H - pad - ((v-min)/(max-min))*(H-pad*2);
+        return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="${color}"/><title>${v}M</title>`;
+      }).join('')}
+    `;
+  }
+
+  function navigate(dir) {
+    document.getElementById('slide-' + current).classList.remove('active');
+    current = Math.max(1, Math.min(TOTAL, current + dir));
+    document.getElementById('slide-' + current).classList.add('active');
+    document.getElementById('counter').textContent = current + ' / ' + TOTAL;
+    document.getElementById('btn-prev').disabled = current === 1;
+    document.getElementById('btn-next').disabled = current === TOTAL;
+    if (current === 5) {
+      setTimeout(() => {
+        buildLineChart('billing-svg', chartData.billing, chartColors.billing);
+        buildLineChart('psa-svg', chartData.psa, chartColors.psa);
+        buildLineChart('payments-svg', chartData.payments, chartColors.payments);
+      }, 50);
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') navigate(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') navigate(-1);
+  });
+</script>
+
+</body>
+</html>
